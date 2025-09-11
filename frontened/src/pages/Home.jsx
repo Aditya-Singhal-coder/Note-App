@@ -1,9 +1,34 @@
 import React, { useState } from "react";
+import axios from "axios"
 import Navbar from "../components/Navbar.jsx";
 import NoteModal from "../components/NoteModal.jsx";
 
 function Home() {
-  const [isModalOpen , setModalOpen] = useState(false)
+  const [isModalOpen , setModalOpen] = useState(false);
+
+  // button to close the add note
+  const closeModal = ()=>{
+    setModalOpen(false);
+  }
+  // add note ka data server ya backened pr bhejna
+  const addNote = async(title, description)=>{
+    try {
+        const reponse = await axios.post('http://localhost:5000/api/note/add' ,
+          {title, description },
+          {headers: { // generate token for the add note
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }}
+      );
+        console.log(reponse);
+        if(reponse.data.success){
+          closeModal();
+        }
+        
+    } catch (error) {
+        console.log(error);
+        
+    }
+  }
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col">
       <Navbar />
@@ -21,7 +46,10 @@ function Home() {
           +
         </button>
 
-        {isModalOpen && <NoteModal />}
+        {isModalOpen && <NoteModal 
+        closeModal={closeModal}
+        addNote = {addNote}
+        />}
       </div>
     </div>
   );

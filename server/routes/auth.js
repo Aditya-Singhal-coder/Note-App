@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
+// for register
 router.post('/register', async(req,res)=>{
     try {
         // access the data from body
