@@ -1,11 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const NoteModal = ({ closeModal,addNote,onClose, onSave }) => {
+const NoteModal = ({ closeModal,addNote,currentNote,editNote,onClose, onSave }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
+  // to show the edit note
+  useEffect(()=>{
+    if(currentNote){
+      setTitle(currentNote.title);
+      setDescription(currentNote.description);
+    }
+  }, [currentNote])
+
+
    const handleSubmit = async(e) => {
     e.preventDefault();
+    if(currentNote){
+      // if note is present then we can edit
+      editNote(currentNote._id , title , description)
+    }
+    else{
+
+    }
     addNote(title , description)
     
   };
@@ -19,7 +35,7 @@ const NoteModal = ({ closeModal,addNote,onClose, onSave }) => {
         </button>
 
         <h2 style={{ textAlign: "center", marginBottom: "16px" }}>
-          Add New Note
+          {currentNote ? "Edit Note" : "Add New Note"}
         </h2>
 
         <form onSubmit={handleSubmit}>
@@ -40,7 +56,7 @@ const NoteModal = ({ closeModal,addNote,onClose, onSave }) => {
 
           <div style={btnGroupStyle}>
             <button type="submit" style={addBtnStyle}>
-              Add Note
+              {currentNote ? "Update Note" : "Add Note"}
             </button>
             <button type="button" onClick={closeModal} style={cancelBtnStyle}>
               Cancel
