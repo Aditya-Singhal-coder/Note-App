@@ -3,19 +3,41 @@ import axios from "axios"
 import Navbar from "../components/Navbar.jsx";
 import NoteModal from "../components/NoteModal.jsx";
 import NoteCard from "../components/NoteCard.jsx";
+import { toast } from "react-toastify";
+
 
 function Home() {
   const [isModalOpen , setModalOpen] = useState(false);
   const [notes , setNotes] = useState([]); // empty array
   const [currentNote , setCurrentNote] = useState(null); 
+  // to filter out the note using search
+  const [filteredNote , setFilteredNote] = useState(false);
+  const [query , setQuery] = useState('')
+
+
   // fetch and display the notes we add
   useEffect(()=>{
     fetchNote();
   }, [])
 
+  useEffect(()=>{
+      setFilteredNote(
+          notes.filter((note)=>
+              note.title.toLowerCase().includes(query.toLowerCase()) || 
+              note.description.toLowerCase().includes(query.toLowerCase())
+      )
+    );
+  } , [query, notes])
+
+
+
   const fetchNote = async()=>{
       try {
-        const {data} = await axios.get("http://localhost:5000/api/note");
+        const {data} = await axios.get("http://localhost:5000/api/note",
+          {headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }}
+        );
         setNotes(data.notes);
       } catch (error) {
         console.log(error)
@@ -35,7 +57,7 @@ function Home() {
   const addNote = async(title, description)=>{
     try {
         const reponse = await axios.post('http://localhost:5000/api/note/add' ,
-          {id , title, description },
+          {title, description },
           {headers: { // generate token for the add note
             Authorization: `Bearer ${localStorage.getItem("token")}`
           }}
@@ -84,6 +106,7 @@ const deleteNote = async (id) => {
     );
 
     if (response.data.success) {
+      toast.success('note deleted'); // to show this notification after delete
       fetchNote(); // refresh notes after delete
     }
   } catch (error) {
@@ -94,16 +117,17 @@ const deleteNote = async (id) => {
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar setQuery={setQuery}/>
 
       {/* after getting notes from .get not need to display it*/}
       <div className="px-8 pt-4 grid grid-clos-1 md:grid-cols-3 gpa-6">
-          {notes.map(note => {
+          {filteredNote.length > 0 ? filteredNote.map(note => {
             <NoteCard
                 note = {note}
                 onEdit = {onEdit}
+                deleteNote={deleteNote}
             />
-          })}
+          }) : <p> No notes </p>}
       </div>
 
       {/* Content space */}

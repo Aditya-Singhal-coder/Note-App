@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { userAuth } from "../context/ContextProvider";
 
-const Navbar = () => {
+const Navbar = ({setQuery}) => {
   // Inline styles
   const styles = {
     navbar: {
@@ -61,17 +61,22 @@ const Navbar = () => {
       background: "#ef4444", // red
     },
   };
-  const {user} = userAuth();
+  const {user , logout} = userAuth();
+  
   return (
     <nav style={styles.navbar}>
       {/* Logo */}
       <div>
         <Link to="/" style={styles.logo}>NoteApp</Link>
+        
       </div>
 
       {/* Search bar */}
       <div>
-        <input type="text" placeholder="Search notes..." style={styles.search} />
+        <input type="text" placeholder="Search notes..." style={styles.search}
+        onChange={(e) => setQuery(e.target.value)}
+        />
+        
       </div>
 
       {/* User + Links */}
@@ -88,7 +93,13 @@ const Navbar = () => {
         (
            <>
             <span style={styles.username}>{user.name}</span>
-            <button style={{ ...styles.btn, ...styles.logoutBtn }}>Logout</button>
+            <button 
+                style={{ ...styles.btn, ...styles.logoutBtn }} 
+                onClick={logout}
+              >
+                Logout
+              </button>
+
            </>
         )}
         </div>
